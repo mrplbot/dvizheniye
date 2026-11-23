@@ -50,12 +50,12 @@ footer{padding:75px 0 30px}.footer-top{display:grid;grid-template-columns:1.2fr 
     if (hero) {
       const rect = hero.getBoundingClientRect();
       const progress = Math.max(0, Math.min(1, -rect.top / Math.max(1, rect.height)));
-      hero.style.setProperty('--hero-scale', (1.04 + progress * 0.13).toFixed(3));
+      hero.style.setProperty('--hero-scale', (1.04 + progress * 0.26).toFixed(3));
     }
     photos.forEach((photo) => {
       const rect = photo.getBoundingClientRect();
       const progress = Math.max(0, Math.min(1, (viewport - rect.top) / (viewport + rect.height)));
-      const scale = 1.02 + progress * 0.075;
+      const scale = 1.02 + progress * 0.28;
       photo.style.setProperty('--scroll-scale', scale.toFixed(3));
       photo.style.setProperty('--hover-scroll-scale', (scale + 0.035).toFixed(3));
     });

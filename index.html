@@ -19,6 +19,26 @@ header{height:78px;display:flex;align-items:center;justify-content:space-between
 .benefits{padding:105px 0}.benefit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:32px}.benefit{background:var(--white);border-radius:var(--r);padding:28px;min-height:210px}.benefit-num{font:600 36px Oswald,sans-serif;color:#93a84a}.benefit h3{font:600 23px Oswald,sans-serif;text-transform:uppercase;margin:20px 0 9px}.benefit p{font-size:11px;line-height:1.8;color:var(--muted);margin:0}
 .community{border-radius:30px;background:var(--lime);padding:60px 7%;display:flex;justify-content:space-between;align-items:center;gap:30px}.community h2{max-width:570px}.community p{font-size:12px;line-height:1.8;max-width:440px;margin:18px 0 0}.community-actions{display:flex;flex-direction:column;gap:10px;min-width:210px}.community-actions .btn{background:var(--ink);color:white}
 footer{padding:75px 0 30px}.footer-top{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:40px;padding-bottom:45px;border-bottom:1px solid var(--line)}.footer-brand{font:700 35px Oswald,sans-serif;text-transform:uppercase}.footer-caption{font-size:11px;color:var(--muted);line-height:1.8;max-width:270px;margin-top:12px}.footer-label{font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:#87944d;margin-bottom:17px}.footer-links{display:flex;flex-direction:column;gap:12px;font-size:12px;font-weight:700}.footer-links a:hover{text-decoration:underline}.phone{font:600 21px Oswald,sans-serif;display:block;margin:5px 0 14px}.footer-bottom{display:flex;justify-content:space-between;gap:20px;padding-top:22px;color:var(--muted);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+
+/* Фото проявляются из тумана при прокрутке */
+.destination img,.tour-image img{
+  transition:transform 1.55s cubic-bezier(.2,.75,.25,1),filter 1.35s ease,opacity 1.15s ease;
+}
+.motion-ready .destination img:not(.is-visible),
+.motion-ready .tour-image img:not(.is-visible){
+  opacity:.28;
+  filter:blur(16px);
+  transform:scale(1.17);
+}
+.motion-ready .destination img.is-visible,
+.motion-ready .tour-image img.is-visible{
+  opacity:1;
+  filter:blur(0);
+}
+@media(prefers-reduced-motion:reduce){
+  .destination img,.tour-image img{transition:none!important;filter:none!important;opacity:1!important;transform:none!important}
+}
+
 @media(max-width:800px){.wrap{width:min(100% - 28px,var(--max))}header{height:68px}header nav{display:none}.nav-cta{padding:12px 15px;font-size:10px}.hero,.hero-in{min-height:610px}.hero{border-radius:22px}.hero-in{padding:55px 7%}.hero-copy{font-size:12px}.scroll{display:none}.intro{grid-template-columns:1fr;gap:22px;padding:70px 0 55px}.destinations{grid-template-columns:1fr 1fr}.destination:first-child{grid-column:span 2;min-height:370px}.destination{min-height:270px}.schedule{margin-top:75px;padding:42px 7%;border-radius:22px}.schedule-grid{grid-template-columns:1fr;gap:18px}.tours,.benefits{padding-top:75px}.tour-panel{grid-template-columns:1fr;gap:10px}.tour-copy{padding:20px 5% 25px}.tour-image,.tour-image img{min-height:250px}.benefit-grid{grid-template-columns:1fr}.benefit{min-height:unset}.community{padding:42px 7%;display:block;border-radius:22px}.community-actions{margin-top:25px;max-width:260px}.footer-top{grid-template-columns:1fr 1fr;gap:30px}.footer-top>div:first-child{grid-column:span 2}.footer-bottom{flex-direction:column}}
 @media(max-width:430px){h1{font-size:61px}.hero,.hero-in{min-height:570px}.actions{align-items:stretch;flex-direction:column;width:100%;max-width:270px}.destinations{grid-template-columns:1fr}.destination:first-child{grid-column:auto}.destination{min-height:280px}.section-head{align-items:start;flex-direction:column}.schedule-empty{align-items:flex-start;flex-direction:column}.footer-top{grid-template-columns:1fr}.footer-top>div:first-child{grid-column:auto}}
 </style>
@@ -44,6 +64,26 @@ footer{padding:75px 0 30px}.footer-top{display:grid;grid-template-columns:1.2fr 
   const hero = document.querySelector('.hero');
   const photos = document.querySelectorAll('.destination img, .tour-image img');
   let ticking = false;
+
+  // Каждое фото проявляется отдельно, когда доходит очередь при прокрутке.
+  document.body.classList.add('motion-ready');
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.16, rootMargin: '0px 0px -7% 0px' });
+
+    photos.forEach((photo, index) => {
+      photo.style.transitionDelay = Math.min(index % 3, 2) * 110 + 'ms';
+      revealObserver.observe(photo);
+    });
+  } else {
+    photos.forEach((photo) => photo.classList.add('is-visible'));
+  }
 
   function updateScrollZoom() {
     const viewport = window.innerHeight || document.documentElement.clientHeight;
